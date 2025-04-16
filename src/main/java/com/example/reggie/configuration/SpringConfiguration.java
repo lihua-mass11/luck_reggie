@@ -9,5 +9,4 @@ import org.springframework.stereotype.Component;
 @EnableAspectJAutoProxy//开启aop面向切面
 public class SpringConfiguration {
 
-
 }

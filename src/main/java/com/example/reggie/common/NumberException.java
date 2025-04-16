@@ -19,6 +19,7 @@ public class NumberException implements HandlerExceptionResolver {
     public ModelAndView resolveException(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Object o, Exception e) {
 
         System.out.println("自定义异常启动");
+        System.out.println("我不是人...");
         return null;
     }
 
