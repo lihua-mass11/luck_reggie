@@ -1,0 +1,21 @@
+ThreadLocal这个线程
+客户端每次发送http请求,对应的服务端都会分配一个新的线程来处理,
+在处理过程中涉及到下面类中的方法都属于相同的一个线程:
+  在这三个实例中写上long id = Thread.currentThread().getId();
+  LoginCheckFilter的doFilter方法
+  MyMetaObjectHandler的updateFill方法
+  EmployeeController的update方法
+  最终输出的线程id是相同的
+
+  2025-03-29 23:22:47.999  INFO 24400 --- [p-nio-80-exec-2] c.e.r.c.filter.LoginCheckFilter          : 线程id: 47
+  2025-03-29 23:22:48.007  INFO 24400 --- [p-nio-80-exec-2] c.e.r.controller.EmployeeController      : 线程id: 47
+  Creating a new SqlSession
+  SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@60fa5ea5] was not registered for synchronization because synchronization is not active
+  2025-03-29 23:22:48.013  INFO 24400 --- [p-nio-80-exec-2] c.e.reggie.common.MyMetaObjectHandler    : 公共自动自动填充[update]...
+  2025-03-29 23:22:48.014  INFO 24400 --- [p-nio-80-exec-2] c.e.reggie.common.MyMetaObjectHandler    : org.apache.ibatis.reflection.MetaObject@7358fc3b
+  2025-03-29 23:22:48.014  INFO 24400 --- [p-nio-80-exec-2] c.e.reggie.common.MyMetaObjectHandler    : 线程id: 47
+
+  // 这种方式也可以获得Session对象
+  @Autowired
+   private HttpSession session;
+  SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@1ca8d1e4]
