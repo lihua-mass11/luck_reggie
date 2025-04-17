@@ -20,6 +20,7 @@ public class NumberException implements HandlerExceptionResolver {
 
         System.out.println("自定义异常启动");
         System.out.println("我不是人...");
+        System.out.println("你好别偷窥");
         return null;
     }
 
