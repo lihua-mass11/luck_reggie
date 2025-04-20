@@ -13,4 +13,13 @@ function loginoutApi() {
   })
 }
 
+//随机验证码
+function sendMsgApi(elem) {
+    return axios({
+        url: '/user/sendMsg',
+        method: 'post',
+        data: {...elem}
+    })
+}
+
   

@@ -45,7 +45,11 @@ public class LoginCheckFilter implements Filter {
           "/employee/login",
           "/employee/logout",
           "/backend/**",//放行这个路径下的所有静态资源  与@WebFilter注解上的/*不一样
-          "/front/**"
+          "/front/**",
+                //移动应用端
+           "/common/**",
+           "/user/sendMsg",//移动端发送短信
+           "/user/login"//移动端登录
         };
         ///backend/** 相当于  /backend/ss/
 
@@ -59,13 +63,25 @@ public class LoginCheckFilter implements Filter {
             return;
         }
 
-        // 4,判断登录状态,如果已经登录直接放行
+        // 4-1,判断登录状态,如果已经登录直接放行
         if (!Objects.isNull(request.getSession().getAttribute("employee"))) {
             log.info("用户已登陆,用户id: {}" , request.getSession().getId());
 
             long id = Thread.currentThread().getId();
             log.info("线程id: {}",id);
             BaseContext.setCurrentId((Long) request.getSession().getAttribute("employee"));
+
+            filterChain.doFilter(request , response);
+            return;
+        }
+
+        // 4-2,判断登录状态,如果已经登录直接放行
+        if (!Objects.isNull(request.getSession().getAttribute("user"))) {
+            log.info("手机已登陆,用户id: {}" , request.getSession().getId());
+
+            long id = Thread.currentThread().getId();
+            log.info("线程id: {}",id);
+            BaseContext.setCurrentId((Long) request.getSession().getAttribute("user"));
 
             filterChain.doFilter(request , response);
             return;

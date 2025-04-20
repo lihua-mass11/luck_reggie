@@ -22,6 +22,7 @@
         <div id="login" v-loading="loading">
             <div class="divHead">登录</div>
             <div class="divContainer">
+                <!--双向绑定-->
                 <el-input placeholder=" 请输入手机号码" v-model="form.phone"  maxlength='20'/></el-input>
                 <div class="divSplit"></div>
                 <el-input placeholder=" 请输入验证码" v-model="form.code"  maxlength='20'/></el-input>
@@ -37,7 +38,7 @@
         <!-- 引入vant样式 -->
         <script src="./../js/vant.min.js"></script>  
         <!-- 引入axios -->
-        <script src="../../backend/plugins/axios/axios.min.js"></script>
+        <script src="./../js/axios.min.js"></script>
         <script src="./../js/request.js"></script>
         <script src="./../api/login.js"></script>
     </body>
@@ -63,21 +64,22 @@
                     const regex = /^(13[0-9]{9})|(15[0-9]{9})|(17[0-9]{9})|(18[0-9]{9})|(19[0-9]{9})$/;
                     if (regex.test(this.form.phone)) {
                         this.msgFlag = false
-                        this.form.code = (Math.random()*1000000).toFixed(0)
-                    }else{
-                        this.msgFlag = true
+                        //this.form.code = (Math.random()*1000000).toFixed(0)
+                        sendMsgApi({phone:this.form.phone}).then(row => {
+                            this.form.code = row.data.data
+                        });
                     }
                 },
                 async btnLogin(){
                     if(this.form.phone && this.form.code){
                         this.loading = true
-                        const res = await loginApi({phone:this.form.phone})
+                        const res = await loginApi({phone:this.form.phone,code:this.form.code})
                         this.loading = false
                         if(res.code === 1){
                             sessionStorage.setItem("userPhone",this.form.phone)
                             window.requestAnimationFrame(()=>{
                                 window.location.href= '/front/index.html'
-                            })                           
+                            })
                         }else{
                             this.$notify({ type:'warning', message:res.msg});
                         }

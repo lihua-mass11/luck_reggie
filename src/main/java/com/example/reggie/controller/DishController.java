@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
@@ -39,6 +40,9 @@ public class DishController {
 
     @Autowired
     private CategoryService categoryService;
+
+    @Autowired
+    private DishFlavorService dishFlavorService;
 
     /**
      * 菜品分页
@@ -160,7 +164,7 @@ public class DishController {
      * @return
      */
     @GetMapping("/list")
-    public R<List<Dish>> list(Dish dish) {
+    public R<List<DishDto>> list(Dish dish) {
 
         //构造查询条件
         LambdaQueryWrapper<Dish> queryWrapper = new LambdaQueryWrapper<>();
@@ -169,6 +173,33 @@ public class DishController {
         //添加排序条件
         queryWrapper.orderByAsc(Dish::getSort).orderByDesc(Dish::getUpdateTime);
 
-        return R.success(dishService.list(queryWrapper));
+        List<Dish> list = dishService.list(queryWrapper);
+
+        List<DishDto> dishDtoList = list.stream().map(item -> {
+            DishDto dto = new DishDto();
+
+            BeanUtil.copyProperties(item,dto);
+
+            Long id = item.getCategoryId();// 分类id
+            // 根据id查询分类对象
+            Category category = categoryService.getById(id);
+
+            if(category != null) {
+                String categoryName = category.getName();
+                dto.setCategoryName(categoryName);
+            }
+
+            Long dish_id = item.getId();
+            //获取口味数据
+            List<DishFlavor> dishFlavors = dishFlavorService.list(
+                    new LambdaQueryWrapper<DishFlavor>().
+                                eq(DishFlavor::getDishId,dish_id)
+            );
+            if (!dishFlavors.isEmpty()) {
+                dto.setFlavors(dishFlavors);
+            }
+            return dto;
+        }).collect(Collectors.toList());
+        return R.success(dishDtoList);
     }
 }

@@ -1,0 +1,38 @@
+sessionStorage 是HTML5新增的一个会话存储对象，用于临时保存同一窗口(或标签页)
+的数据，在关闭窗口或标签页之后将会删除这些数据。
+
+要求在同一端口,同一协议
+只在本地存储
+seesionStorage的数据不会跟随HTTP请求一起发送到服务器，只会在本地生效，并在关闭标签页后清除数据。
+setItem(键,值)
+getItem(键)  获取值
+clear()清空所有会话存储对象
+key(int index)
+removeItem(string key)
+
+
+
+
+========================================================
+
+requestAnimationFrame的用法与settimeout很相似，只是不需要设置时间间隔而已。requestAnimationFrame使用一个回调函数作为参数，这个回调函数会在浏
+览器重绘之前调用。它返回一个整数，表示定时器的编号，这个值可以传递给cancelAnimationFrame用于取消这个函数的执行
+
+1】requestAnimationFrame会把每一帧中的所有DOM操作集中起来，在一次重绘或回流中就完成，并且
+重绘或回流的时间间隔紧紧跟随浏览器的刷新频率，如果系统绘制率是 60Hz，那么回调函数就会16.7ms
+再 被执行一次，如果绘制频率是75Hz，那么这个间隔时间就变成了 1000/75=13.3ms。换句话说就是，
+requestAnimationFrame的执行步伐跟着系统的绘制频率走。它能保证回调函数在屏幕每一次的绘制间隔中只
+被执行一次，这样就不会引起丢帧现象，也不会导致动画出现卡顿的问题。
+
+
+//简单兼容
+if (!window.requestAnimationFrame) {
+    requestAnimationFrame = function(fn) {
+        setTimeout(fn, 17);
+    };
+}
+
+还可以这么写
+requestAnimationFrame(() => {
+    执行语句
+})

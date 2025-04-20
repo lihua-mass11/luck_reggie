@@ -3,24 +3,25 @@ package com.example.reggie.controller;
 import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.example.reggie.Steam;
 import com.example.reggie.common.R;
 import com.example.reggie.entity.Category;
+import com.example.reggie.entity.Dish;
 import com.example.reggie.entity.Setmeal;
 import com.example.reggie.entity.SetmealDish;
+import com.example.reggie.entity.dto.SetmealDishVO;
 import com.example.reggie.entity.dto.SetmealDto;
 import com.example.reggie.service.CategoryService;
+import com.example.reggie.service.DishService;
 import com.example.reggie.service.SetmealDishService;
 import com.example.reggie.service.SetmealService;
+import com.example.reggie.utils.BaseContext;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
-import org.mockito.internal.util.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -39,6 +40,9 @@ public class SetmealController {
 
     @Autowired
     private CategoryService categoryService;
+
+    @Autowired
+    private DishService dishService;
 
     /**
      * 套餐分页
@@ -128,5 +132,89 @@ public class SetmealController {
 
         setmealService.statusWithDish(id, ids);
         return R.success("批量成功😊😊");
+    }
+
+    /**
+     * 套餐修改,根据id进行数据回调
+     * @param id
+     * @return
+     */
+    @GetMapping("/{id}")
+    public R<SetmealDto> awareSetmeal(@PathVariable Long id) {
+        //根据分类Id查询套餐
+        Setmeal setmeal = setmealService.getById(id);
+
+        //根据套餐Id获取菜品信息
+        List<SetmealDish> setmealDishs = setmealDishService.list(
+                new LambdaQueryWrapper<SetmealDish>().
+                            eq(SetmealDish::getSetmealId,setmeal.getId())
+        );
+
+        //Dto封装
+        SetmealDto setmealDto = BeanUtil.copyProperties(setmeal,SetmealDto.class);
+        setmealDto.setSetmealDishes(setmealDishs);
+        return R.success(setmealDto);
+    }
+
+    @GetMapping("/list")
+    public R<List<SetmealDto>> list(
+            @RequestParam("categoryId") Long id,
+            @RequestParam("status") Integer status
+    ) {
+        log.info("菜品分类Id: {}, 状态: {}",id,status);
+        /**
+         * 获取当前分类的菜品
+         */
+        List<Setmeal> setmeals = setmealService.list(
+                new LambdaQueryWrapper<Setmeal>().
+                            eq(Setmeal::getCategoryId,id).
+                            eq(Setmeal::getStatus,status)
+        );
+
+        List<SetmealDto> setmealDtos = BeanUtil.copyToList(setmeals,SetmealDto.class).
+                    stream().map(item -> {
+                        //对套餐的菜品进新货发你如果装
+                        List<SetmealDish> setmealDishes = setmealDishService.list(
+                                new LambdaQueryWrapper<SetmealDish>().
+                                            eq(SetmealDish::getSetmealId,item.getId())
+                        );
+                        item.setSetmealDishes(setmealDishes);
+
+                        return item;
+                    }).collect(Collectors.toList());
+        System.out.println("set:" + setmealDtos);
+        return R.success(setmealDtos);
+    }
+
+    @GetMapping("/dish/{id}")
+    public R<SetmealDto> withSetmeal(@PathVariable Long id) {
+        //获取当前套餐
+        Setmeal setmeal = setmealService.getById(id);
+        //获取当前分类名称
+        Category category = categoryService.getById(setmeal.getCategoryId());
+
+        //获取当前套餐的菜品
+        List<SetmealDish> setmealDishs = setmealDishService.list(
+                new LambdaQueryWrapper<SetmealDish>().
+                        eq(SetmealDish::getSetmealId,id)
+        );
+
+        //用户返回vo
+        List<SetmealDishVO> setmealDishVOS = setmealDishs.stream().map(item -> {
+            SetmealDishVO setmealDishVO = BeanUtil.copyProperties(item, SetmealDishVO.class);
+            //获取该菜品图片
+            String image = dishService.getById(item.getDishId()).getImage();
+            setmealDishVO.setImage(image);
+            return setmealDishVO;
+        }).collect(Collectors.toList());
+
+
+        SetmealDto setmealDto = BeanUtil.copyProperties(setmeal,SetmealDto.class);
+
+        setmealDto.setSetmealDisheVOS(setmealDishVOS);
+        setmealDto.setCategoryName(category.getName());
+        System.out.println("对象参数:" + setmealDto);
+
+        return R.success(setmealDto);
     }
 }

@@ -41,12 +41,14 @@
       </div>
       <div class="divBody">
         <div class="divType">
+          <!--测导航栏-->
           <ul>
             <li v-for="(item,index) in categoryList" :key="index" @click="categoryClick(index,item.id,item.type)" :class="{active:activeType === index}">{{item.name}}</li>
           </ul>
         </div>
         <div class="divMenu">
           <div>
+            <!--菜品遍历-->
             <div class="divItem" v-for="(item,index) in dishList" :key="index" @click="dishDetails(item)">
               <el-image :src="imgPathConvert(item.image)" >
                 <div slot="error" class="image-slot">
@@ -183,6 +185,7 @@
           <div class="divContainer">
             <div class="title">{{setMealDialog.item.name}}</div>
               <div class="item" v-for="(item,index) in setMealDialog.item.list" :key="index">
+                <!--加载菜品图片-->
                 <el-image :src="imgPathConvert(item.image)">
                   <div slot="error" class="image-slot">
                     <img src="./images/noImg.png"/>
@@ -298,6 +301,7 @@
               Promise.all([categoryListApi(),cartListApi({})]).then(res=>{
                 //获取分类数据
                 if(res[0].code === 1){
+                  //获取菜品分类
                   this.categoryList = res[0].data
                   if(Array.isArray(res[0].data) && res[0].data.length > 0){
                     this.categoryId = res[0].data[0].id
@@ -330,6 +334,7 @@
             },
             //获取菜品数据
             async getDishList(){
+              //个人那句当前菜品id进行菜品分类获取
               if(!this.categoryId){
                 return
               }
@@ -385,6 +390,7 @@
             },
             //菜单中往购物车中添加商品
             async addCart(item){
+              //菜品参数填写
               let params = {
                 amount:item.price/100,//金额
                 dishFlavor:item.dishFlavor,//口味  如果没有传undefined
@@ -398,10 +404,12 @@
               }else{//表示套餐 套餐没有口味
                 params.setmealId = item.id
               }
+              //添加菜品
               const res = await addCartApi(params)
               if(res.code === 1){
                 this.dishList.forEach(dish=>{
                   if(dish.id === item.id){
+                    //菜品购买个数
                     dish.number = res.data.number
                   }
                 })
@@ -416,17 +424,23 @@
 
             //菜单中减少选中的商品
             async subtractCart(item){
+                //id封装
                 let params = {
                   dishId:item.id,
                 }
+                //如果不是数组对象就执行这个参数
+                //也就是菜品判断,是菜品就会又item.flavors
                 if(!Array.isArray(item.flavors)){
                   params = {
                     setmealId:item.id,
                   }
                 }
+                //执行axios请求
                 const res = await updateCartApi(params)
                 if(res.code === 1){
+                //遍历当前购物车的菜品,查找当前菜品id进行菜品修改
                 this.dishList.forEach(dish=>{
+                  //判断是否是当前菜品
                   if(dish.id === item.id){
                     dish.number = (res.data.number === 0 ? undefined : res.data.number)
                   }
@@ -587,12 +601,14 @@
               }else{
                 //显示套餐的数据
                 const res = await setMealDishDetailsApi(item.id)
+
                 if(res.code === 1){
-                  this.setMealDialog.item = {...item,list:res.data}
+                  this.setMealDialog.item = {...item,list:res.data.setmealDisheVOS}
                   this.setMealDialog.show = true
                 }else{
                   this.$notify({ type:'warning', message:res.msg});
                 }
+                this.setMealDialog.item.setmealDishes.image = res.data.image
               }
 
             }

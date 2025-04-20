@@ -10,5 +10,8 @@ public class SetmealDto extends Setmeal {
 
     private List<SetmealDish> setmealDishes;
 
+    private List<SetmealDishVO> setmealDisheVOS;
+
     private String categoryName;
+
 }

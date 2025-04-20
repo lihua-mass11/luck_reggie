@@ -7,7 +7,6 @@ import com.example.reggie.mapper.EmployeeMapper;
 import com.example.reggie.service.CategoryService;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.List;
@@ -61,4 +60,5 @@ public class ReggieTest01 {
             System.out.println(employee.getName());
         });
     }
+
 }

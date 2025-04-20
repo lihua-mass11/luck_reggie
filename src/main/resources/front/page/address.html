@@ -133,9 +133,11 @@
                             this.$message.error(res.msg)
                         }
                     },
+                    //设置默认地址
                     async setDefaultAddress(item){
                         if(item.id){
                             const res = await setDefaultAddressApi({id:item.id})
+                            //判断是否响应
                             if(res.code === 1){
                             this.initData()
                             }else{

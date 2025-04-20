@@ -27,6 +27,8 @@ function setmealListApi(data) {
 //获取购物车内商品的集合
 function cartListApi(data) {
     return $axios({
+        //我们也可以这么写获取他的伪数据
+        //'url': '/shoppingCart/cartData.json',
         'url': '/shoppingCart/list',
         'method': 'get',
         params:{...data}

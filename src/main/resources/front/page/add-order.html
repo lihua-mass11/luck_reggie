@@ -185,6 +185,7 @@
                             this.$notify({ type:'warning', message:res.msg});
                         }
                     },
+                    //提交地址
                     async goToPaySuccess(){
                         const params = {
                             remark:this.note,
@@ -193,6 +194,7 @@
                         }
                         const res = await addOrderApi(params)
                         if(res.code === 1){
+                            //最终进行页面跳转
                             window.requestAnimationFrame(()=>{
                                 window.location.replace('/front/page/pay-success.html')
                             })

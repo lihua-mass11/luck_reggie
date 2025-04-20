@@ -10,6 +10,7 @@ import java.util.List;
 //继承了父类所有方法
 public class DishDto extends Dish {
 
+    //菜品所对应口味数据
     private List<DishFlavor> flavors = new ArrayList<>();
 
     private String categoryName;
